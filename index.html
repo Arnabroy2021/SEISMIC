@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seismic Blockchain Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #101820, #1a1a2e);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .quiz-container {
+      background: #1f1f2f;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .option {
+      background: #2b2b3d;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .option:hover {
+      background: #383856;
+    }
+    .option.correct {
+      background: #2e7d32;
+    }
+    .option.incorrect {
+      background: #c62828;
+    }
+    .next-btn {
+      margin-top: 20px;
+      background: #0077ff;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .next-btn:hover {
+      background: #005ecc;
+    }
+    .score-section {
+      text-align: center;
+      font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div id="quiz">
+      <div id="question" class="question"></div>
+      <div id="options" class="options"></div>
+      <button id="next-btn" class="next-btn">Next</button>
+    </div>
+    <div id="score-section" class="score-section" style="display: none;"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "1. What is Seismic primarily designed for?",
+        options: ["Gaming", "Fintech privacy-enabled blockchain", "NFT marketplace", "Social media"],
+        answer: 1
+      },
+      {
+        question: "2. What is the developer experience of Seismic compared to Ethereum?",
+        options: ["Totally different", "About 1:1 with Ethereum", "More complex", "Not compatible"],
+        answer: 1
+      },
+      {
+        question: "3. What does 'stype' refer to in Seismic?",
+        options: ["Shielded types", "Storage types", "Standard types", "Static types"],
+        answer: 0
+      },
+      {
+        question: "4. Which of these is a shielded type?",
+        options: ["suint / sint", "string", "bytes32", "mapping"],
+        answer: 0
+      },
+      {
+        question: "5. What happens to stype variable values when observed externally?",
+        options: ["They are visible", "They are encrypted", "They are replaced with 0x000", "They are hashed"],
+        answer: 2
+      },
+      {
+        question: "6. What is the main difference between stype and vanilla types?",
+        options: ["stype is slower", "stype is shielded", "stype is public", "stype is cheaper"],
+        answer: 1
+      },
+      {
+        question: "7. What is NOT allowed with stype variables?",
+        options: ["Returning them in public functions", "Using them in private functions", "Assigning values", "Arithmetic operations"],
+        answer: 0
+      },
+      {
+        question: "8. Can you use stype variables as constants?",
+        options: ["Yes", "Only in view functions", "No", "Only after casting"],
+        answer: 2
+      },
+      {
+        question: "9. What does casting between stype and unshielded types require?",
+        options: ["Implicit casting", "No casting", "Explicit casting", "Automatic casting"],
+        answer: 2
+      },
+      {
+        question: "10. During transaction submission, how are stype values represented?",
+        options: ["As clear numbers", "As hashes", "As 0x000", "As encrypted bytes"],
+        answer: 2
+      },
+      {
+        question: "11. What problem does Seismic solve that Ethereum hasn’t?",
+        options: ["Limited scalability", "Forced transparency", "Lack of NFTs", "EVM compatibility"],
+        answer: 1
+      },
+      {
+        question: "12. What is encrypted at the app-level in Seismic?",
+        options: ["Wallet keys", "Exchange parameters and vault transfers", "Public addresses", "Gas fees"],
+        answer: 1
+      },
+      {
+        question: "13. Why can’t app-level encryption be bolted onto existing chains?",
+        options: ["It requires base layer encryption", "It’s too expensive", "It breaks wallets", "It’s not needed"],
+        answer: 0
+      },
+      {
+        question: "14. What is Seismic’s mission?",
+        options: ["Encrypt all chains", "Build a new wallet", "Compete with Bitcoin", "Run only private apps"],
+        answer: 0
+      },
+      {
+        question: "15. Which fund led Seismic’s $7M funding round?",
+        options: ["Polychain", "a16z crypto", "dao5", "1kx"],
+        answer: 1
+      },
+      {
+        question: "16. What is 'Nibble' in Seismic’s ecosystem?",
+        options: ["A DEX", "An app that grants revenue share in restaurants", "A wallet", "A DAO"],
+        answer: 1
+      },
+      {
+        question: "17. What is 'Level' app used for?",
+        options: ["Price-based trading", "Belief-based asset trading", "NFT minting", "DeFi lending"],
+        answer: 1
+      },
+      {
+        question: "18. What is the time frame to release the developer testnet?",
+        options: ["4 weeks", "6 months", "1 year", "Already released"],
+        answer: 0
+      },
+      {
+        question: "19. Which data replaces stype values in the MPT storage tree?",
+        options: ["Hashes", "0x000", "Ciphertext", "Random bytes"],
+        answer: 1
+      },
+      {
+        question: "20. Which language familiarity is assumed for Seismic developers?",
+        options: ["Rust", "Solidity", "Move", "Go"],
+        answer: 1
+      }
+    ];
+
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const nextButton = document.getElementById('next-btn');
+    const scoreSection = document.getElementById('score-section');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function showQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      questionElement.textContent = currentQuestion.question;
+      optionsElement.innerHTML = "";
+      currentQuestion.options.forEach((option, index) => {
+        const button = document.createElement('div');
+        button.textContent = `${String.fromCharCode(65+index)}. ${option}`;
+        button.classList.add('option');
+        button.addEventListener('click', () => selectOption(index));
+        optionsElement.appendChild(button);
+      });
+    }
+
+    function selectOption(selectedIndex) {
+      const currentQuestion = questions[currentQuestionIndex];
+      const options = document.querySelectorAll('.option');
+      options.forEach((option, index) => {
+        option.style.pointerEvents = "none";
+        if (index === currentQuestion.answer) {
+          option.classList.add('correct');
+        }
+        if (index === selectedIndex && index !== currentQuestion.answer) {
+          option.classList.add('incorrect');
+        }
+      });
+      if (selectedIndex === currentQuestion.answer) {
+        score++;
+      }
+    }
+
+    nextButton.addEventListener('click', () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    });
+
+    function showScore() {
+      document.getElementById('quiz').style.display = "none";
+      scoreSection.style.display = "block";
+      scoreSection.textContent = `🎉 You scored ${score} out of ${questions.length}!`;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
